@@ -1,0 +1,74 @@
+type: edu
+custom_name: stage3
+files:
+- name: test/EncryptDecryptTest.java
+  visible: false
+  text: |
+    import encryptdecrypt.Main;
+    import org.hyperskill.hstest.stage.StageTest;
+    import org.hyperskill.hstest.testcase.SimpleTestCase;
+
+    import java.util.List;
+
+    public class EncryptDecryptTest extends StageTest {
+        public EncryptDecryptTest() throws Exception {
+            super(Main.class);
+        }
+
+        @Override
+        public List<SimpleTestCase> generate() {
+            return List.of(
+                new SimpleTestCase(
+                    "enc\n" +
+                        "Welcome to hyperskill!\n" +
+                        "5",
+                    "\\jqhtrj%yt%m~ujwxpnqq&"),
+                new SimpleTestCase(
+                    "enc\n" +
+                        "Hello\n" +
+                        "0",
+                    "Hello"),
+                new SimpleTestCase(
+                    "enc\n" +
+                        "012345678\n" +
+                        "1",
+                    "123456789"),
+                new SimpleTestCase(
+                    "dec\n" +
+                        "\\jqhtrj%yt%m~ujwxpnqq&\n" +
+                        "5",
+                    "Welcome to hyperskill!"),
+                new SimpleTestCase(
+                    "dec\n" +
+                        "Hello\n" +
+                        "0",
+                    "Hello"),
+                new SimpleTestCase(
+                    "dec\n" +
+                        "222233334444\n" +
+                        "1",
+                    "111122223333")
+            );
+        }
+    }
+  learner_created: false
+- name: src/encryptdecrypt/Main.java
+  visible: true
+  text: "package encryptdecrypt;\nimport java.util.Scanner;\nimport java.lang.*;\n\
+    \npublic class Main {\n    public static StringBuffer encrypt(String text, int\
+    \ s) \n    { \n        StringBuffer result= new StringBuffer(); \n  \n       \
+    \ for (int i=0; i<text.length(); i++) \n        { \n            if (Character.isUpperCase(text.charAt(i)))\
+    \ \n            { \n                char ch = (char)(((int)text.charAt(i) + \n\
+    \                                  s - 65) % 26 + 65); \n                result.append(ch);\
+    \ \n            } else if (Character.isWhitespace(text.charAt(i)))\n         \
+    \   {\n                result.append(\" \");\n            }\n            else\n\
+    \            { \n                char ch = (char)(((int)text.charAt(i) + \n  \
+    \                                s - 97) % 26 + 97); \n                result.append(ch);\
+    \ \n            } \n        } \n        return result; \n    } \n    public static\
+    \ void main(String[] args) {\n      Scanner s = new Scanner(System.in);\n    \
+    \  String str = s.nextLine();\n      int shift = s.nextInt();\n      System.out.println(encrypt(str,\
+    \ shift));\n    }\n}\n"
+  learner_created: false
+feedback_link: https://hyperskill.org/projects/46/stages/247/implement
+status: Solved
+record: 2
