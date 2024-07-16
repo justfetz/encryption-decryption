@@ -1,4 +1,171 @@
 package encryptdecrypt;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+
+class Converter {
+    private ConvertingStrategy strategy;
+
+    public Converter(ConvertingStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public String getResult(String text, int key) {
+        return this.strategy.getResult(text, key);
+    }
+}
+
+interface ConvertingStrategy {
+    String getResult(String text, int key);
+}
+
+class Encoder implements ConvertingStrategy {
+
+    @Override
+    public String getResult(String text, int key) {
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            if (Character.isUpperCase(ch)) {
+                char newChar = (char) ((ch + key - 65) % 26 + 65);
+                result.append(newChar);
+            } else if (Character.isLowerCase(ch)) {
+                char newChar = (char) ((ch + key - 97) % 26 + 97);
+                result.append(newChar);
+            } else {
+                result.append(ch);
+            }
+        }
+        return result.toString();
+    }
+}
+
+class Decoder implements ConvertingStrategy {
+
+    @Override
+    public String getResult(String text, int key) {
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            if (Character.isUpperCase(ch)) {
+                char newChar = (char) ((ch - key - 65 + 26) % 26 + 65);
+                result.append(newChar);
+            } else if (Character.isLowerCase(ch)) {
+                char newChar = (char) ((ch - key - 97 + 26) % 26 + 97);
+                result.append(newChar);
+            } else {
+                result.append(ch);
+            }
+        }
+        return result.toString();
+    }
+}
+
+class Encryption implements ConvertingStrategy {
+
+    @Override
+    public String getResult(String text, int key) {
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            char newChar = (char) ((ch + key) % 128);
+            result.append(newChar);
+        }
+        return result.toString();
+    }
+}
+
+class Decryption implements ConvertingStrategy {
+
+    @Override
+    public String getResult(String text, int key) {
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            char newChar = (char) ((ch - key + 128) % 128);
+            result.append(newChar);
+        }
+        return result.toString();
+    }
+}
+
+public class Main {
+    public static String readFileAsString(String fileName) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(fileName)));
+    }
+
+    public static void writeFile(String fileName, String data) throws IOException {
+        try (FileWriter writer = new FileWriter(new File(fileName))) {
+            writer.write(data);
+        }
+    }
+
+    public static void main(String[] args) {
+        Map<String, String> arguments = parseArguments(args);
+        String mode = arguments.getOrDefault("-mode", "enc");
+        int key = Integer.parseInt(arguments.getOrDefault("-key", "0"));
+        String alg = arguments.getOrDefault("-alg", "shift");
+        String data = arguments.getOrDefault("-data", "");
+        String inFile = arguments.get("-in");
+        String outFile = arguments.get("-out");
+
+        if (data.isEmpty() && inFile != null) {
+            try {
+                data = readFileAsString(inFile);
+            } catch (IOException e) {
+                System.out.println("Error reading input file: " + e.getMessage());
+                return;
+            }
+        }
+
+        Converter converter = null;
+        if ("enc".equals(mode)) {
+            if ("unicode".equals(alg)) {
+                converter = new Converter(new Encryption());
+            } else {
+                converter = new Converter(new Encoder());
+            }
+        } else if ("dec".equals(mode)) {
+            if ("unicode".equals(alg)) {
+                converter = new Converter(new Decryption());
+            } else {
+                converter = new Converter(new Decoder());
+            }
+        }
+
+        String result = converter.getResult(data, key);
+
+        if (outFile != null) {
+            try {
+                writeFile(outFile, result);
+            } catch (IOException e) {
+                System.out.println("Error writing to output file: " + e.getMessage());
+            }
+        } else {
+            System.out.println(result);
+        }
+    }
+
+    private static Map<String, String> parseArguments(String[] args) {
+        Map<String, String> arguments = new HashMap<>();
+        for (int i = 0; i < args.length; i += 2) {
+            arguments.put(args[i], args[i + 1]);
+        }
+        return arguments;
+    }
+}
+
+/**
+package encryptdecrypt;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -51,7 +218,7 @@ class Encoder implements ConvertingStrategy {
 class Decoder implements ConvertingStrategy {
 
     @Override
-    /*----------New Code-----------*/
+
     //lower case and upper case
     public StringBuffer getResult(String text, int s) {
         final String alph = "abcdefghijklmnopqrstuvwxyz";
@@ -133,11 +300,11 @@ public class Main {
     If there is no -data, the program should assume that the data is an empty string.
     Arguments: -mode enc -key 5 -in in.txt -out output.txt
     add -alg argument, can be 'shift' (5) or 'unicode'
-    */
+
 
     public static StringBuilder shift(String text, int s) {
 
-        /*----------New Code-----------*/
+
         StringBuilder result = new StringBuilder();
         for (char character : text.toCharArray()) {
             if (character != ' ') {
@@ -273,11 +440,11 @@ public class Main {
                 } catch (IOException e) {
                     System.out.printf("An Error exception occurs %s", e.getMessage());
                 }
-
+        //test notes
             }
         }
 
       }
     }
-
+*/
 
